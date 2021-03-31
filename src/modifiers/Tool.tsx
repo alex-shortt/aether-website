@@ -1,9 +1,8 @@
 import React, { ReactNode, useRef } from "react";
 import { useFrame, useThree } from "react-three-fiber";
-import { Group, Vector3 } from "three";
+import { Group, MathUtils, Vector3 } from "three";
 import { useSpring } from "react-spring";
 import { useLimiter } from "spacesvr";
-import { getSpringValues } from "../utils/spring";
 
 type Props = {
   children: ReactNode;
@@ -44,11 +43,6 @@ export const Tool = (props: Props) => {
   const [t, f] = hashSpringSeed(seed);
   const limiter = useLimiter(70);
 
-  const [spring, setSpring] = useSpring(() => ({
-    xyz: [0, 0, 0],
-    config: { tension: 120 + t, friction: 24 + f, precision: 0.00001 },
-  }));
-
   useFrame(({ clock }) => {
     if (!group.current || !limiter.isReady(clock)) return;
 
@@ -63,16 +57,26 @@ export const Tool = (props: Props) => {
       }
       dummyVector.applyQuaternion(moveQuaternion);
 
-      setSpring({ xyz: dummyVector.toArray() });
+      group.current.position.x = MathUtils.lerp(
+        group.current.position.x,
+        dummyVector.x,
+        0.1
+      );
+      group.current.position.y = MathUtils.lerp(
+        group.current.position.y,
+        dummyVector.y,
+        0.1
+      );
+      group.current.position.z = MathUtils.lerp(
+        group.current.position.z,
+        dummyVector.z,
+        0.1
+      );
     }
 
     if (face) {
-      group.current.lookAt(camera.position);
+      group.current.quaternion.copy(camera.quaternion);
     }
-
-    const [x, y, z] = getSpringValues(spring);
-    group.current.position.set(x, y, z);
-    // group.current.rotation.y = camera.rotation.y;
   });
 
   useFrame(() => {

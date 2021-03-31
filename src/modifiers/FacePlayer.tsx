@@ -1,8 +1,6 @@
 import { ReactNode, useRef } from "react";
 import { Group } from "three";
 import { useFrame } from "react-three-fiber";
-import { useSpring } from "react-spring";
-import { getSpringValues } from "../utils/spring";
 import { useLimiter } from "spacesvr";
 
 type Props = {
@@ -17,10 +15,6 @@ const FacePlayer = (props: Props) => {
 
   const group = useRef<Group>();
   const limiter = useLimiter(60);
-  const [spring, setSpring] = useSpring(() => ({
-    xyz: [0, 0, 0],
-    precision: 0.00001,
-  }));
 
   useFrame(({ clock, camera }) => {
     if (!limiter.isReady(clock)) return;
@@ -35,12 +29,6 @@ const FacePlayer = (props: Props) => {
       if (lockX) group.current.rotation.x = prev.x;
       if (lockY) group.current.rotation.y = prev.y;
       if (lockZ) group.current.rotation.z = prev.z;
-      setSpring({ xyz: group.current.rotation.toArray() });
-
-      const [x, y, z] = getSpringValues(spring);
-      group.current.rotation.x = x;
-      group.current.rotation.y = y;
-      group.current.rotation.z = z;
     }
   });
 

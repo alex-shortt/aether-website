@@ -1,12 +1,5 @@
 import * as THREE from "three";
-import {
-  AudioAnalyser,
-  DoubleSide,
-  Group,
-  Material,
-  Mesh,
-  Object3D,
-} from "three";
+import { DoubleSide, Group, Material, MathUtils, Mesh, Object3D } from "three";
 // @ts-ignore
 import glsl from "glslify";
 import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
@@ -15,59 +8,99 @@ import { useLimiter } from "spacesvr";
 
 const uniforms = `
     uniform float time;
-    uniform float bins;
-    uniform float audio[64];
-    varying vec3 vUv;
+    uniform float intensity;
+    uniform float fade;
+    
+    varying vec3 vPos;
+    varying vec2 vUv;
 `;
 
 const vert = glsl`
-    float y_factor = 1.0 + audio[int(vUv.t * bins)] / 255.0;
-    float theta = sin( time + position.y * y_factor + audio[1] / 255.0 * 3.14 * 2.0 / 4.0 ) / 3.0;
-    float c = cos( theta );
-    float s = sin( theta );
-    mat3 m = mat3( c, 0, s, 0, 1, 0, -s, 0, c );
-    vec3 transformed = vec3( position ) * m;
-    vNormal = vNormal * m;
+    #include <begin_vertex>
+    float theta = sin( time + position.y / 255.0 * 3.14 * 2.0 / 4.0 ) / 3.0;
+    gl_Position.x += sin(time  * 0.9);
+    vPos = gl_Position.xyz;
+    vUv = uv;
+`;
+
+const fragHeader = glsl`
+  // fbm from https://www.shadertoy.com/view/lss3zr
+  mat3 m = mat3( 0.00,  0.80,  0.60,
+                -0.80,  0.36, -0.48,
+                -0.60, -0.48,  0.64 );
+  float hash( float n ) { 
+      return fract(sin(n)*43758.5453); 
+  }
+  
+  float noise( in vec3 x ) {
+      vec3 p = floor(x);
+      vec3 f = fract(x);
+      f = f*f*(3.0-2.0*f);
+      float n = p.x + p.y*57.0 + 113.0*p.z;
+      float res = mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
+                          mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y),
+                      mix(mix( hash(n+113.0), hash(n+114.0),f.x),
+                          mix( hash(n+170.0), hash(n+171.0),f.x),f.y),f.z);
+      return res;
+  }
+  
+  float fbm( vec3 p ) {
+      float f;
+      f  = 0.5000*noise( p ); p = m*p*2.02;
+      f += 0.2500*noise( p ); p = m*p*2.03;
+      f += 0.12500*noise( p ); p = m*p*2.01;
+      f += 0.06250*noise( p );
+      return f;
+  }
 `;
 
 const frag = glsl`
-  gl_FragColor = vec4( packNormalToRGB( normal ), opacity );
-  gl_FragColor.b = clamp((gl_FragColor.b) * 1.5, 0.0, 1.0);
-  gl_FragColor.g = pow(clamp( gl_FragColor.g + 0.25, 0.0, 1.0 ), 8.);
-  gl_FragColor.r *= 0.85;
+  float x_mod = 0.5 * vUv.x + 0.25;
+  float fade_mod = clamp( abs(fade * 3. - 1. - x_mod) / 0.5 - 0.5, 0., 1.);
+  float a = pow( fbm(vec3(vUv.x * 40., vUv.y * 10., time + 0.9)), 1.9 + 0.4 * sin(time * 0.25));
+  
+  a *= 2.6;
+  a = clamp(a, 0., 1.);
+  
+  if ( a <= intensity * fade_mod ) discard;
+  
+  vec3 diff = mix( vec3(1.2, 0.05, 0.), vec3(1., 0.9, .1), 0.1 + a * 0.9);
+  diff *= 1.3;
+  
+  vec4 diffuseColor = vec4( diff, a );
 `;
 
 type Props = {
   children: ReactNode;
-  aa?: AudioAnalyser;
+  fade: number;
 };
 
-const BINS = 64;
-
 const Distort = (props: Props) => {
-  const { aa, children } = props;
+  const { children, fade } = props;
 
   const group = useRef<Group>();
-  const seed = useMemo(() => Math.random(), []);
-  const limiter = useLimiter(60);
+  const limiter = useLimiter(50);
 
   const distortMat = useMemo<Material>(() => {
-    const material = new THREE.MeshNormalMaterial();
+    const material = new THREE.MeshStandardMaterial();
 
     material.onBeforeCompile = function (shader) {
       shader.uniforms.time = { value: 0 };
-      shader.uniforms.audio = { value: new Array(BINS).fill(0) };
-      shader.uniforms.bins = { value: BINS };
+      shader.uniforms.intensity = { value: 1 };
+      shader.uniforms.fade = { value: 0 };
       shader.vertexShader = uniforms + shader.vertexShader;
       shader.vertexShader = shader.vertexShader.replace(
         "#include <begin_vertex>",
         vert
       );
 
-      shader.fragmentShader = shader.fragmentShader.replace(
-        "gl_FragColor = vec4( packNormalToRGB( normal ), opacity );",
-        frag
-      );
+      shader.fragmentShader =
+        uniforms +
+        fragHeader +
+        shader.fragmentShader.replace(
+          "vec4 diffuseColor = vec4( diffuse, opacity );",
+          frag
+        );
 
       material.userData.shader = shader;
     };
@@ -75,7 +108,7 @@ const Distort = (props: Props) => {
     material.side = DoubleSide;
 
     return material;
-  }, []);
+  }, [frag, vert]);
 
   useLayoutEffect(() => {
     if (group.current) {
@@ -91,23 +124,9 @@ const Distort = (props: Props) => {
     if (!limiter.isReady(clock)) return;
 
     if (distortMat.userData.shader) {
-      distortMat.userData.shader.uniforms.time.value =
-        clock.getElapsedTime() * 2;
-
-      if (aa) {
-        const data = aa.getFrequencyData();
-        const newData = [];
-        for (let i = 0; i < BINS; i++) {
-          newData[i] = data[i * 4];
-        }
-        distortMat.userData.shader.uniforms.audio.value = newData;
-      }
-    }
-
-    if (group.current) {
-      group.current.rotation.x = clock.getElapsedTime() / (7 + seed * 30);
-      group.current.rotation.y = clock.getElapsedTime() / (4 + seed * 30);
-      group.current.rotation.z = clock.getElapsedTime() / (9 + seed * 30);
+      const uniforms = distortMat.userData.shader.uniforms;
+      uniforms.time.value = clock.getElapsedTime() * 1.5;
+      uniforms.fade.value = MathUtils.lerp(uniforms.fade.value, fade, 0.01);
     }
   });
 

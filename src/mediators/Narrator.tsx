@@ -1,59 +1,64 @@
-import FollowsPlayer from "../modifiers/FollowsPlayer";
-import { useEffect, useRef } from "react";
-import { Group, Vector3 } from "three";
-import { useFrame } from "react-three-fiber";
+import { useRef } from "react";
+import { Group, MathUtils } from "three";
+import { GroupProps, useFrame } from "react-three-fiber";
 import { Text } from "@react-three/drei";
 import FacePlayer from "modifiers/FacePlayer";
 import Distort from "../modifiers/Distort";
-import { useSpring } from "react-spring";
-import { useSpeech } from "../utils/speech";
-
-const DIST = 2.5;
+import { FONTS } from "../utils/constants";
+import { Floating } from "spacesvr";
 
 type NarratorProps = {
   message: string;
-  speed?: number;
-};
+  follow?: boolean;
+  dist?: number;
+  show?: boolean;
+} & GroupProps;
 
 export default function Narrator(props: NarratorProps) {
-  const { message, speed = 0.1 } = props;
+  const { message, follow, dist: DIST = 1, show = true, ...restProps } = props;
 
   const group = useRef<Group>();
-  const curMessage = useSpeech(message, speed);
-
-  const [spring, setSpring] = useSpring(() => ({
-    xyz: [0, 0, 0],
-    precision: 0.00001,
-  }));
 
   useFrame(({ camera }) => {
     if (!group.current) return;
 
-    const dir = group.current.position.clone().sub(camera.position);
-    const dist = dir.length();
+    if (follow) {
+      const dir = group.current.position.clone().sub(camera.position);
+      const length = dir.length();
 
-    if (dist > DIST) {
-      dir.multiplyScalar(0.1 / dist);
-      group.current.position.sub(dir);
-
-      // dir.multiplyScalar(0.1 / dist);
-      // const newPos = group.current.position.clone().sub(dir);
-      // setSpring({ xyz: newPos.toArray() });
-      //
-      // group.current.position.copy(
-      //   new Vector3().fromArray(getSpringValues(spring))
-      // );
+      if (length > DIST) {
+        dir.multiplyScalar(((length - DIST) / length) * -1);
+        group.current.position.x = MathUtils.lerp(
+          group.current.position.x,
+          group.current.position.x + dir.x,
+          0.1
+        );
+        group.current.position.y = MathUtils.lerp(
+          group.current.position.y,
+          group.current.position.y + dir.y,
+          0.1
+        );
+        group.current.position.z = MathUtils.lerp(
+          group.current.position.z,
+          group.current.position.z + dir.z,
+          0.1
+        );
+      }
     }
   });
 
   return (
-    <group ref={group}>
-      <FacePlayer>
-        <Distort>
-          {/* @ts-ignore */}
-          <Text>{curMessage}</Text>
-        </Distort>
-      </FacePlayer>
+    <group {...restProps}>
+      <group ref={group}>
+        <FacePlayer>
+          <Floating height={0.025}>
+            <Distort fade={show ? 0.5 : 0}>
+              {/* @ts-ignore */}
+              <Text font={FONTS.SACRE_BLEU}>{message}</Text>
+            </Distort>
+          </Floating>
+        </FacePlayer>
+      </group>
     </group>
   );
 }

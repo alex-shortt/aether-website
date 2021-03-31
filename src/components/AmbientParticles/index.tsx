@@ -8,10 +8,10 @@ import {
 } from "three";
 import { useFrame } from "react-three-fiber";
 
-const COUNT = 500;
-const XZ_RANGE = 20;
+const COUNT = 150;
+const XZ_RANGE = 15;
 const XZ_POW = 1.8;
-const Y_RANGE = 20;
+const Y_RANGE = 10;
 const Y_POW = 2;
 
 export default function AmbientParticles() {
@@ -58,10 +58,11 @@ export default function AmbientParticles() {
       {/* @ts-ignore */}
       <instancedMesh
         ref={mesh}
+        // @ts-ignore
         args={[null, null, COUNT]}
         material={particleMaterial}
       >
-        <sphereBufferGeometry args={[0.015, 12, 8]} />
+        <sphereBufferGeometry args={[0.015, 8, 8]} />
       </instancedMesh>
     </group>
   );

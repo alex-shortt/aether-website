@@ -1,15 +1,25 @@
 import { useMemo } from "react";
-import { SpotLight } from "three";
+import { MathUtils, SpotLight } from "three";
+import { useFrame } from "react-three-fiber";
 
-export default function Purpose() {
+type Props = {
+  visible?: boolean;
+};
+
+export default function Purpose(props: Props) {
+  const { visible = false } = props;
   const light = useMemo(() => new SpotLight(), []);
 
   const lightAttrs = {
-    intensity: 2,
+    intensity: 0.1,
     penumbra: 0.6,
     color: "#d881bf",
     angle: Math.PI * 0.2,
   };
+
+  useFrame(() => {
+    light.intensity = MathUtils.lerp(light.intensity, visible ? 1 : 0.1, 0.01);
+  });
 
   return (
     <group>
