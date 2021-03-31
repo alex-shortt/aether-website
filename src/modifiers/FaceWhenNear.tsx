@@ -18,7 +18,7 @@ export default function FaceWhenNear(props: Props) {
 
   const { y, rotX } = useSpring({
     y: near ? 0.7 : 0,
-    rotX: near ? 0 : -Math.PI / 2,
+    rotX: near ? -0.6 : -Math.PI / 2,
     config: config.molasses,
   });
 

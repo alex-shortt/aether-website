@@ -35,7 +35,7 @@ type ActionName = "Point002|Take 001|BaseLayer";
 type GLTFActions = Record<ActionName, THREE.AnimationAction>;
 
 const FILE_URL =
-  "https://d27rt3a60hh1lx.cloudfront.net/models/Book-1616816223/book_01.glb.gz";
+  "https://d27rt3a60hh1lx.cloudfront.net/models/Book-1617157645/book_02.glb.gz";
 
 type Props = { open?: boolean } & JSX.IntrinsicElements["group"];
 
