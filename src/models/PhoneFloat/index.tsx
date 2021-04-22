@@ -1,4 +1,4 @@
-import { GroupProps, useFrame, useLoader } from "react-three-fiber";
+import { GroupProps, useFrame, useLoader } from "@react-three/fiber";
 import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader";
 import * as THREE from "three";
 import { useEffect, useMemo, useRef } from "react";
@@ -33,9 +33,9 @@ const Index = (props: GroupProps) => {
   useEffect(() => {
     if (model) {
       const numVertices = model.attributes.position.count;
-      var alphas = new Float32Array(numVertices * 1); // 1 values per vertex
+      const alphas = new Float32Array(numVertices * 1); // 1 values per vertex
 
-      for (var i = 0; i < numVertices; i++) {
+      for (let i = 0; i < numVertices; i++) {
         // set alpha randomly
         alphas[i] = Math.random();
       }

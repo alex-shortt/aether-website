@@ -3,12 +3,15 @@ import { useStage } from "contexts/Stage";
 import Narrator from "mediators/Narrator";
 import Book from "models/Book";
 import FaceWhenNear from "modifiers/FaceWhenNear";
-import { useFrame } from "react-three-fiber";
+import { useFrame } from "@react-three/fiber";
 import Purpose from "mediators/Purpose";
 import FacePlayer from "../../modifiers/FacePlayer";
+import { useScene } from "../../contexts/Scene";
+import { MathUtils } from "three";
 
 export default function Welcome() {
   const { stage } = useStage();
+  const { mediation } = useScene();
 
   const ACTIVE = stage === "welcome";
   const PURPOSE_DIST = 5;
@@ -17,10 +20,14 @@ export default function Welcome() {
   const [foundPurpose, setFoundPurpose] = useState(false);
   const [openBook, setOpenBook] = useState(false);
 
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera, clock }, delta) => {
     if (ACTIVE && clock.getElapsedTime() > 2) {
       if (!foundPurpose && camera.position.length() < PURPOSE_DIST) {
         setFoundPurpose(true);
+      }
+
+      if (foundPurpose && mediation.current < 1) {
+        mediation.current = MathUtils.lerp(mediation.current, 1, 0.05 * delta);
       }
 
       if (!openBook && camera.position.length() < BOOK_DIST) {

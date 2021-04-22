@@ -10,13 +10,10 @@ export const vert = glsl`
   
   uniform float time;
   
-  varying vec3 vPos;
-  varying float vSeed;
-  varying vec2 vUv;
   attribute float seed;
   
   #define radiusNoiseFrequency 46.
-  #define radiusVariationAmplitude 0.02
+  #define radiusVariationAmplitude 0.09
   #define radius 0.015
   
   #pragma glslify: snoise = require(glsl-noise-simplex/3d.glsl) 
@@ -49,41 +46,34 @@ export const vert = glsl`
   }
    
   void main() {
-      float updateTime = time / 10.0;
-      vec3 transformed = position.xyz;
-      transformed = distortFunct(transformed, 1.0);
+      float updateTime = time * 0.0001;
+      vec3 transformed = position.xyz * 6.;
+      transformed = distortFunct(transformed, 0.4);
       vec3 distortedNormal = distortNormal(position, transformed, normal);
       vec3 vNormal = normal + distortedNormal;
       
-      vec3 scroll = seed * 1000. * position.xyz;
-      float offset = fsnoise(scroll.x + time * 0.4, scroll.y * time * 0.4, scroll.z + time * 0.4);
+      vec3 scroll = seed * 1000. * vec3(1.);
+      float offset = fsnoise(scroll.x + updateTime * 0.4, scroll.y * updateTime * 0.4, scroll.z + updateTime * 0.4);
       
       vec3 pos = transformed * offset;
-      float time_pos = time * .3 + seed * 0.5 + seed * 100.;
+      float time_pos = updateTime * .3 + seed * 0.5 + seed * 100.;
       pos.x += 0.025 * fsnoise(time_pos, time_pos, time_pos);
       pos.y += 0.3 * sin(time_pos);
       pos.z += 0.025 * fsnoise(time_pos, time_pos, time_pos);
       
       gl_Position = projectionMatrix * modelViewMatrix * instanceMatrix * vec4(pos, 1.);
-      
-      vPos = position.xyz;
-      vSeed = seed;
-      vUv = uv;
   }
 `;
 
 export const frag = glsl`
   precision highp float;
-  varying vec3 vPos;
-  varying float vSeed;
-  varying vec2 vUv;
   
   #define fogNear 0.
-  #define fogFar 20.
-  #define fogColor vec3(0., 0., 0.)
+  #define fogFar 1000.
+  #define fogColor vec3(1., 1., 1.)
 
   void main() {
-    gl_FragColor.rgb = vec3(vUv.x, vUv.y, 1.);
+    gl_FragColor.rgb = vec3(1., 1., 1.);
     
     // account for fog
     float depth = gl_FragCoord.z / gl_FragCoord.w;

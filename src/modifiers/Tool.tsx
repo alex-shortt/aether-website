@@ -1,7 +1,6 @@
 import React, { ReactNode, useRef } from "react";
-import { useFrame, useThree } from "react-three-fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Group, MathUtils, Vector3 } from "three";
-import { useSpring } from "react-spring";
 import { useLimiter } from "spacesvr";
 
 type Props = {
@@ -39,8 +38,6 @@ export const Tool = (props: Props) => {
   const parent = useRef<Group>();
 
   const { current: dummyVector } = useRef(new Vector3());
-  const { current: seed } = useRef(Math.random());
-  const [t, f] = hashSpringSeed(seed);
   const limiter = useLimiter(70);
 
   useFrame(({ clock }) => {
@@ -92,10 +89,4 @@ export const Tool = (props: Props) => {
       </group>
     </group>
   );
-};
-
-const hashSpringSeed = (seed: number): [number, number] => {
-  const t = (((seed * 100) % 100) - 50) / 50;
-  const f = (((seed * 10000) % 100) - 50) / 50;
-  return [t * 40, f * 13];
 };

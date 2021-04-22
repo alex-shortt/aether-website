@@ -29,7 +29,6 @@ const withWebpack = {
 
 module.exports = {
   ...withPlugins([transpileModules]),
-  experimental: { reactMode: "concurrent" },
   reactStrictMode: true,
   ...withWebpack,
 };

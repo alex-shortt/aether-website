@@ -1,6 +1,6 @@
 import { ReactNode, useRef, useState } from "react";
 import { Group } from "three";
-import { useFrame } from "react-three-fiber";
+import { useFrame } from "@react-three/fiber";
 // @ts-ignore
 import { animated, useSpring } from "react-spring/three";
 import { config } from "react-spring";

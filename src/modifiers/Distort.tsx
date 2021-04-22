@@ -3,7 +3,7 @@ import { DoubleSide, Group, Material, MathUtils, Mesh, Object3D } from "three";
 // @ts-ignore
 import glsl from "glslify";
 import { ReactNode, useLayoutEffect, useMemo, useRef } from "react";
-import { useFrame } from "react-three-fiber";
+import { useFrame } from "@react-three/fiber";
 import { useLimiter } from "spacesvr";
 
 const uniforms = `

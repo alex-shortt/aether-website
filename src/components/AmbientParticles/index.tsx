@@ -6,18 +6,22 @@ import {
   InstancedMesh,
   Object3D,
 } from "three";
-import { useFrame } from "react-three-fiber";
+import { GroupProps, useFrame } from "@react-three/fiber";
+import { useLimiter } from "spacesvr";
 
-const COUNT = 150;
-const XZ_RANGE = 15;
-const XZ_POW = 1.8;
-const Y_RANGE = 10;
+const COUNT = 400;
+const X_RANGE = 20;
+const Z_RANGE = 20;
+const XZ_POW = 1.2;
+const Y_RANGE = 5;
 const Y_POW = 2;
+const SCALE = 700;
 
-export default function AmbientParticles() {
+export default function AmbientParticles(props: GroupProps) {
   const mesh = useRef<InstancedMesh>();
 
   const particleMaterial = useParticleMaterial();
+  const limiter = useLimiter(40);
 
   const dummy = useMemo(() => new Object3D(), []);
 
@@ -31,8 +35,8 @@ export default function AmbientParticles() {
       const ry = Math.pow(Math.random(), Y_POW);
       const rz = Math.pow(Math.random(), XZ_POW);
 
-      const x = rx * XZ_RANGE * (Math.random() > 0.5 ? -1 : 1);
-      const z = rz * XZ_RANGE * (Math.random() > 0.5 ? -1 : 1);
+      const x = ((rx * X_RANGE) / 2) * (Math.random() > 0.5 ? -1 : 1);
+      const z = ((rz * Z_RANGE) / 2) * (Math.random() > 0.5 ? -1 : 1);
       const y = ry * Y_RANGE;
       dummy.position.fromArray([x, y, z]);
       dummy.updateMatrix();
@@ -48,13 +52,13 @@ export default function AmbientParticles() {
   }, [COUNT, mesh]);
 
   useFrame(({ clock }) => {
-    if (particleMaterial) {
+    if (particleMaterial && limiter.isReady(clock)) {
       particleMaterial.uniforms.time.value = clock.getElapsedTime();
     }
   });
 
   return (
-    <group name="ambient-particles">
+    <group name="ambient-particles" {...props}>
       {/* @ts-ignore */}
       <instancedMesh
         ref={mesh}
@@ -62,7 +66,7 @@ export default function AmbientParticles() {
         args={[null, null, COUNT]}
         material={particleMaterial}
       >
-        <sphereBufferGeometry args={[0.015, 8, 8]} />
+        <sphereBufferGeometry args={[0.015 * SCALE, 8, 5]} />
       </instancedMesh>
     </group>
   );

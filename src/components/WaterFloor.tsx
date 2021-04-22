@@ -1,4 +1,4 @@
-import { useFrame, useThree } from "react-three-fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import WaterComp from "./WaterComp";
 import { Group } from "three";

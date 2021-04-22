@@ -5,12 +5,7 @@ const Effects = () => {
   return (
     <Suspense fallback={null}>
       <EffectComposer multisampling={0}>
-        <Bloom
-          intensity={0.93}
-          luminanceThreshold={0.1}
-          luminanceSmoothing={0.6}
-          height={300}
-        />
+        <Bloom luminanceThreshold={0.3} luminanceSmoothing={0.9} height={300} />
       </EffectComposer>
     </Suspense>
   );

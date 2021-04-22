@@ -1,5 +1,5 @@
 import { ReactNode, useRef } from "react";
-import { useFrame, useThree } from "react-three-fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Group } from "three";
 
 type FollowsPlayerProps = {

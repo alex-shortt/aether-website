@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { Group, MathUtils } from "three";
-import { GroupProps, useFrame } from "react-three-fiber";
+import { GroupProps, useFrame } from "@react-three/fiber";
 import { Text } from "@react-three/drei";
 import FacePlayer from "modifiers/FacePlayer";
 import Distort from "../modifiers/Distort";

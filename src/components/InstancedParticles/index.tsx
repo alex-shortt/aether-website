@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import MoverCore from "./classes/MoverCore";
 import PhysicsRenderer from "./classes/PhysicsRenderer";
-import { useFrame, useLoader, useThree } from "react-three-fiber";
+import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 import {
@@ -11,7 +11,6 @@ import {
 import { vert as vsv, frag as fsv } from "./shaders/physicsRendererVelocity";
 
 const COUNT = 2000;
-const HEIGHT_SEGMENTS = 1;
 
 const NOISE_TEX =
   "https://ykob.github.io/sketch-threejs/img/sketch/flow_field/noise.jpg";
@@ -37,7 +36,7 @@ const InstancedParticles = () => {
     const delayArray = [];
     const massArray = [];
 
-    for (var i = 0; i < COUNT * 3; i += 3) {
+    for (let i = 0; i < COUNT * 3; i += 3) {
       const radian = Math.PI * 2;
       const radiusA = 5;
       const radiusV = 30;

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { MathUtils, SpotLight } from "three";
-import { useFrame } from "react-three-fiber";
+import { useFrame } from "@react-three/fiber";
 
 type Props = {
   visible?: boolean;

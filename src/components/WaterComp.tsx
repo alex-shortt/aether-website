@@ -1,8 +1,9 @@
 import { useState } from "react";
+//@ts-ignore
 import { Water } from "three/examples/jsm/objects/Water2";
 import * as THREE from "three";
 import { Color } from "three";
-import { GroupProps, useLoader } from "react-three-fiber";
+import { GroupProps, useLoader } from "@react-three/fiber";
 
 const WaterComp = (props: GroupProps) => {
   const normal0 = useLoader(

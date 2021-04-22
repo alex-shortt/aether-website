@@ -1,6 +1,6 @@
 import { ReactNode, useRef } from "react";
 import { Group } from "three";
-import { useFrame } from "react-three-fiber";
+import { useFrame } from "@react-three/fiber";
 import { useLimiter } from "spacesvr";
 
 type Props = {

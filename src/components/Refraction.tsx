@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { Material, PlaneBufferGeometry, ShaderMaterial } from "three";
 import { WaterRefractionShader } from "three/examples/jsm/shaders/WaterRefractionShader";
 import * as THREE from "three";
-import { useFrame, useLoader } from "react-three-fiber";
+import { useFrame, useLoader } from "@react-three/fiber";
 
 type RefractionProps = JSX.IntrinsicElements["group"];
 
