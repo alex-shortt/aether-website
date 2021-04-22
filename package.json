@@ -19,11 +19,10 @@
   },
   "dependencies": {
     "@react-three/cannon": "^1.1.0",
-    "@react-three/drei": "4.1.8",
-    "@react-three/fiber": "6.0.14",
+    "@react-three/drei": "^4.1.8",
+    "@react-three/fiber": "^6.0.14",
     "@react-three/flex": "^0.5.2",
     "@react-three/postprocessing": "^2.0.3",
-    "@react-three/xr": "^1.1.0",
     "babel-plugin-glsl": "^1.0.0",
     "glsl-noise-simplex": "^0.0.2",
     "glslify": "^7.1.1",
