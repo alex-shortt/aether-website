@@ -30,7 +30,7 @@
     "next": "^10.0.9",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
-    "react-spring": "^9.1.2",
+    "react-spring": "9.1.1",
     "spacesvr": "^1.6.5",
     "three": "^0.127.0"
   },
