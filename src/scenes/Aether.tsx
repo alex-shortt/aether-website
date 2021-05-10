@@ -12,6 +12,7 @@ import GradientSky from "../components/GradientSky";
 import { COLORS } from "../utils/colors";
 import Sun from "../components/Sun";
 import Nature from "../components/Nature";
+import TexParticles from "../components/TexParticles";
 
 export default function Aether() {
   const shape = (r: number, a: number, h: number) => {
@@ -48,6 +49,7 @@ export default function Aether() {
           {/*  </Suspense>*/}
           {/*</Tool>*/}
           {/*<Perf />*/}
+          <TexParticles />
           <Effects />
           <Sun />
           <Nature density={1000} shape={shape} />
